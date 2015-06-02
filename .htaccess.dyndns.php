@@ -94,5 +94,5 @@
   Trim CR from tail
  */
   function trimLine( $line ){
-    return preg_replace('/[\n\r]/','',$line);
+    return preg_replace('/[\n\r].*/s','',$line);
   }
