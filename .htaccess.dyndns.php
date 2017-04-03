@@ -60,7 +60,7 @@
               }
             }
             else {
-              $outputRows[] = 'Allow from ' . $host_ip . ' # ' . $host_result;
+              $outputRows[] = 'Allow from ' . $host_ip; // . ' # ' . $host_result;
             }
             break;
           case 'default':
