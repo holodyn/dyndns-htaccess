@@ -37,14 +37,20 @@
   if( $fh = fopen($inputFileName, 'r') ){
     while( isset($fh) && !feof($fh) && $line = fgets($fh) ){
       $line = trimLine( $line);
+      # DYNDNS account.dyndns.org
       if( preg_match('/^\# DYNDNS ([0-9A-Za-z\.\-]+)(\s*|\s.*)$/', $line, $matches) ){
-        # DYNDNS account.dyndns.org
         $followTask = 'dns_allow';
         $host_ip = null;
         $host_dns = $matches[1];
-        $host_result = trimLine( shell_exec('host ' . $host_dns) );
-        if( !empty($host_result) && preg_match('/^.* ([\d\.]+)$/', $host_result) ){
-          $host_ip = preg_replace('/^.* ([\d\.]+)$/', '$1', $host_result);
+        $host_result = gethostbyname($host_dns);
+        if( !empty($host_result) && $host_result != $host_dns ){
+          $host_ip = $host_result;
+        }
+        elseif( function_exists('shell_exec') ){
+          $host_result = trimLine( shell_exec('host ' . $host_dns) );
+          if( !empty($host_result) && preg_match('/^.* ([\d\.]+)$/', $host_result) ){
+            $host_ip = preg_replace('/^.* ([\d\.]+)$/', '$1', $host_result);
+          }
         }
         $outputRows[] = $line;
       }
@@ -61,7 +67,8 @@
               }
             }
             else {
-              $outputRows[] = '# host result: ' . $host_result;
+              if ($host_result !== $host_ip)
+                $outputRows[] = '# host result: ' . $host_result;
               $outputRows[] = 'Allow from ' . $host_ip;
             }
             break;
