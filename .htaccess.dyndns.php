@@ -51,16 +51,18 @@
       else if( !empty($followTask) ){
         switch( $followTask ){
           case 'dns_allow':
+            if( preg_match('/^\# host /', $line) ){
+              continue 2;
+            }
             if( empty($host_ip) ){
+              $outputRows[] = '# host lookup failed: ' . $host_dns . ' - ' . $host_result;
               if( $onErrorUseOriginal ){
                 $outputRows[] = $line;
               }
-              else {
-                $outputRows[] = '# host lookup failed: ' . $host_dns . ' - ' . $host_result;
-              }
             }
             else {
-              $outputRows[] = 'Allow from ' . $host_ip; // . ' # ' . $host_result;
+              $outputRows[] = '# host result: ' . $host_result;
+              $outputRows[] = 'Allow from ' . $host_ip;
             }
             break;
           case 'default':
@@ -81,7 +83,7 @@
 
     if( !empty($outputRows) ){
       $fw = fopen($outputFileName, 'w');
-      fwrite( $fw, implode("\n", $outputRows) );
+      fwrite( $fw, implode("\n", $outputRows)."\n" );
       fclose( $fw );
     }
 
